@@ -30,7 +30,7 @@ export class App extends Component {
     // console.log(prevState);
     // console.log(this.state);
     if (prevState.searchName !== this.state.searchName) {
-      console.log('update');
+      // console.log('update');
       this.setState({ page: 1, images: [], loadMore: false, loading: true });
       this.fetchApi()
         .then(photo => this.setState({ photos: photo }))
@@ -99,15 +99,15 @@ export class App extends Component {
         })
       );
 
-      console.log(hits.length);
+      // console.log(hits.length);
       if (hits.length === 0) {
         this.setState({ photos: [], loadMore: false, error: true });
         return;
       }
 
-      console.log(response.data);
+      // console.log(response.data);
       const totalHits = response.data.totalHits;
-      console.log(totalHits);
+      // console.log(totalHits);
 
       // if (page === 1) {
       //   this.setState({ photos: hits });
@@ -123,10 +123,11 @@ export class App extends Component {
         this.setState({ loadMore: false });
       }
 
-      console.log(response.data.hits);
+      // console.log(response.data.hits);
       return hits;
     } catch (error) {
-      this.setState({ error });
+      // this.setState({ error });
+      this.setState({ photos: [], loadMore: false, error: true });
       console.log(error);
     }
     // finally {
