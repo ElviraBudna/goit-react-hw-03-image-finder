@@ -60,20 +60,5 @@ export class SearchBar extends Component {
 }
 
 SearchBar.propTypes = {
-  handleInputChange: PropTypes.func,
-  contacts: PropTypes.arrayOf(
-    PropTypes.shape({
-      name: PropTypes.string.isRequired,
-      number: PropTypes.string.isRequired,
-    })
-  ),
-
-  //   friends: PropTypes.arrayOf(
-  //     PropTypes.shape({
-  //       id: PropTypes.number.isRequired,
-  //       isOnline: PropTypes.bool.isRequired,
-  //       avatar: PropTypes.string.isRequired,
-  //       name: PropTypes.string.isRequired,
-  //     })
-  //   ),
+  onSubmit: PropTypes.func.isRequired,
 };

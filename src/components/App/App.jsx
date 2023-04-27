@@ -8,6 +8,7 @@ import { ImageGallery } from 'components/ImageGallery/ImageGallery';
 import { AppContainer } from './App.styled';
 import ButtonLoadMore from 'components/Button/Button';
 import Modal from 'components/Modal/Modal';
+import { ErrorMessage } from 'components/ErrorMessage/ErrorMessage';
 
 const BASE_URL = 'https://pixabay.com/api/';
 const MY_KEY = '34502026-b3b6775c6b884fa93647474e5';
@@ -23,7 +24,7 @@ export class App extends Component {
     perPage: 12,
     showModal: false,
     loadMore: false,
-    error: null,
+    error: false,
   };
 
   componentDidUpdate(prevProps, prevState) {
@@ -31,25 +32,32 @@ export class App extends Component {
     // console.log(this.state);
     if (prevState.searchName !== this.state.searchName) {
       // console.log('update');
-      this.setState({ page: 1, images: [], loadMore: false, loading: true });
+      this.setState({
+        page: 1,
+        photos: [],
+        loadMore: false,
+        loading: true,
+        error: false,
+      });
       this.fetchApi()
         .then(photo => this.setState({ photos: photo }))
-        .finally(() => this.setState({ loading: false }))
-        .catch(error => {
-          console.log(error);
-          this.setState({ error });
-        });
+        .finally(() => this.setState({ loading: false }));
+      // .catch(error => {
+      //   console.log(error);
+      //   this.setState({ error: true });
+      // });
     } else if (prevState.page !== this.state.page) {
       this.fetchApi()
         .then(photo =>
           this.setState(prevState => ({
             photos: [...prevState.photos, ...photo],
+            // error: false,
           }))
         )
-        .catch(error => {
-          console.log(error);
-          this.setState({ error });
-        })
+        // .catch(error => {
+        //   console.log(error);
+        //   this.setState({ error });
+        // })
         .finally(() => this.setState({ loading: false }));
     }
   }
@@ -71,13 +79,6 @@ export class App extends Component {
 
   onClickLoadMore = () => {
     this.setState(prevState => ({ page: prevState.page + 1 }));
-    // this.fetchApi()
-    //   .then(photo =>
-    //     this.setState(prevState => ({
-    //       photos: { ...prevState.photos, ...photo },
-    //     }))
-    //   )
-    //   .finally(() => this.setState({ loading: false }));
   };
 
   handleImageClick = largeImageURL => {
@@ -91,18 +92,29 @@ export class App extends Component {
         `${BASE_URL}?key=${MY_KEY}&q=${searchName}&${OPTION_FOR_RESPONSE}&page=${page}&per_page=${perPage}`
       );
 
-      const hits = response.data.hits.map(
-        ({ id, largeImageURL, webformatURL }) => ({
+      const hits = response.data.hits;
+
+      if (hits) {
+        // console.log(hits === true);
+        hits.map(({ id, largeImageURL, webformatURL }) => ({
           id,
           largeImageURL,
           webformatURL,
-        })
-      );
+        }));
 
-      // console.log(hits.length);
-      if (hits.length === 0) {
-        this.setState({ photos: [], loadMore: false, error: true });
-        return;
+        // console.log(hits.length);
+        // console.log(hits === []);
+        // console.log(hits.length === 0);
+        if (hits.length === 0) {
+          // console.log(hits.length === 0);
+          this.setState({ loadMore: false, error: true });
+        }
+
+        // if (this.state.photos.length === 0) {
+        //   console.log(this.state.photos.length === 0);
+        //   this.setState({ loadMore: false, error: true });
+        //   return;
+        // }
       }
 
       // console.log(response.data);
@@ -136,16 +148,23 @@ export class App extends Component {
   }
 
   render() {
-    const { loading, photos, showModal, largeImageURL, loadMore, error } =
-      this.state;
+    const {
+      loading,
+      photos,
+      searchName,
+      showModal,
+      largeImageURL,
+      loadMore,
+      error,
+    } = this.state;
 
     return (
       <AppContainer>
         <SearchBar onSubmit={this.formSubmitHandler} />
         {loading && <Loader />}
-        {error && <h2>error={'Sorry, nothing was found for your request'}</h2>}
+        {error && <ErrorMessage name={searchName} />}
         {photos.length > 0 && (
-          <ImageGallery images={photos} onClick={this.oncClickImg} />
+          <ImageGallery photos={photos} onClick={this.oncClickImg} />
         )}
         {showModal && (
           <Modal onClose={this.toggleModal}>
