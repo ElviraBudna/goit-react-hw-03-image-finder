@@ -12,13 +12,3 @@ export function ErrorMessage({ name }) {
 ErrorMessage.propTypes = {
   name: PropTypes.string.isRequired,
 };
-
-// ContactForm.propTypes = {
-//     handleInputChange: PropTypes.func,
-//     contacts: PropTypes.arrayOf(
-//         PropTypes.shape({
-//             name: PropTypes.string.isRequired,
-//             number: PropTypes.string.isRequired,
-//         })
-//     ),
-// }

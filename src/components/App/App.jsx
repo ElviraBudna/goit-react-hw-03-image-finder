@@ -27,38 +27,23 @@ export class App extends Component {
     error: false,
   };
 
-  componentDidUpdate(prevProps, prevState) {
-    // console.log(prevState);
-    // console.log(this.state);
+  async componentDidUpdate(prevProps, prevState) {
     if (prevState.searchName !== this.state.searchName) {
-      // console.log('update');
-      this.setState({
+      await this.setState({
         page: 1,
         photos: [],
         loadMore: false,
         loading: true,
         error: false,
       });
-      this.fetchApi()
-        .then(photo => this.setState({ photos: photo }))
-        .finally(() => this.setState({ loading: false }));
-      // .catch(error => {
-      //   console.log(error);
-      //   this.setState({ error: true });
-      // });
+
+      await this.fetchApi().then(photo => this.setState({ photos: photo }));
     } else if (prevState.page !== this.state.page) {
-      this.fetchApi()
-        .then(photo =>
-          this.setState(prevState => ({
-            photos: [...prevState.photos, ...photo],
-            // error: false,
-          }))
-        )
-        // .catch(error => {
-        //   console.log(error);
-        //   this.setState({ error });
-        // })
-        .finally(() => this.setState({ loading: false }));
+      this.fetchApi().then(photo =>
+        this.setState(prevState => ({
+          photos: [...prevState.photos, ...photo],
+        }))
+      );
     }
   }
 
@@ -72,7 +57,7 @@ export class App extends Component {
     this.setState({ searchName: data });
   };
 
-  oncClickImg = item => {
+  onClickImg = item => {
     this.setState({ largeImageURL: item });
     this.toggleModal();
   };
@@ -92,42 +77,22 @@ export class App extends Component {
         `${BASE_URL}?key=${MY_KEY}&q=${searchName}&${OPTION_FOR_RESPONSE}&page=${page}&per_page=${perPage}`
       );
 
-      const hits = response.data.hits;
+      let hits = response.data.hits;
 
       if (hits) {
-        // console.log(hits === true);
-        hits.map(({ id, largeImageURL, webformatURL }) => ({
+        hits = hits.map(({ id, largeImageURL, webformatURL, tags }) => ({
           id,
           largeImageURL,
           webformatURL,
+          tags,
         }));
 
-        // console.log(hits.length);
-        // console.log(hits === []);
-        // console.log(hits.length === 0);
         if (hits.length === 0) {
-          // console.log(hits.length === 0);
           this.setState({ loadMore: false, error: true });
         }
-
-        // if (this.state.photos.length === 0) {
-        //   console.log(this.state.photos.length === 0);
-        //   this.setState({ loadMore: false, error: true });
-        //   return;
-        // }
       }
 
-      // console.log(response.data);
       const totalHits = response.data.totalHits;
-      // console.log(totalHits);
-
-      // if (page === 1) {
-      //   this.setState({ photos: hits });
-      // } else {
-      //   // this.setState(prevState => ({
-      //   //   photos: [...prevState.photos, ...hits],
-      //   // }));
-      // }
 
       if (totalHits > page * perPage) {
         this.setState({ loadMore: true });
@@ -135,16 +100,13 @@ export class App extends Component {
         this.setState({ loadMore: false });
       }
 
-      // console.log(response.data.hits);
       return hits;
     } catch (error) {
-      // this.setState({ error });
       this.setState({ photos: [], loadMore: false, error: true });
       console.log(error);
+    } finally {
+      this.setState({ loading: false });
     }
-    // finally {
-    //   this.setState({ loading: false });
-    // }
   }
 
   render() {
@@ -164,7 +126,7 @@ export class App extends Component {
         {loading && <Loader />}
         {error && <ErrorMessage name={searchName} />}
         {photos.length > 0 && (
-          <ImageGallery photos={photos} onClick={this.oncClickImg} />
+          <ImageGallery photos={photos} onClick={this.onClickImg} />
         )}
         {showModal && (
           <Modal onClose={this.toggleModal}>
@@ -172,7 +134,6 @@ export class App extends Component {
           </Modal>
         )}
         {loadMore && <ButtonLoadMore onClick={this.onClickLoadMore} />}
-        {/* <ToastContainer autoClose={3000} /> */}
       </AppContainer>
     );
   }

@@ -35,6 +35,7 @@ export class SearchBar extends Component {
   };
 
   render() {
+    const { searchName } = this.state;
     return (
       <Header>
         <Form onSubmit={this.handleFormSubmit}>
@@ -51,7 +52,7 @@ export class SearchBar extends Component {
             autocomplete="off"
             autoFocus
             placeholder="Search images and photos"
-            value={this.state.searchName}
+            value={searchName}
           />
         </Form>
       </Header>
